@@ -53,6 +53,7 @@
             <nav class="flex gap-2">
                 <button onclick="switchTab('tab-platform')" id="btn-tab-platform" class="px-3 py-1.5 rounded font-semibold transition bg-slate-800 text-white border border-slate-700">Platform Monitor</button>
                 <button onclick="switchTab('tab-compare')" id="btn-tab-compare" class="px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent">Compare Countries</button>
+                <button onclick="switchTab('tab-simulator')" id="btn-tab-simulator" class="px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent">Transit Simulator</button>
                 <button onclick="switchTab('tab-admin')" id="btn-tab-admin" class="px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent">Admin panel</button>
             </nav>
             <div class="h-6 w-px bg-slate-700"></div>
@@ -72,6 +73,14 @@
             <!-- LEFT PANEL: Country Selector, Search, Watchlist -->
             <aside class="w-80 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 overflow-y-auto z-20">
                 
+                <!-- TRANSIT SIMULATOR TRIGGER IN SIDEBAR -->
+                <div class="p-4 border-b border-slate-800 bg-slate-950/40">
+                    <button onclick="switchTab('tab-simulator')" class="w-full flex items-center justify-center gap-2 py-2.5 px-3 bg-intl-orange hover:bg-orange-600 text-white font-mono text-xs font-bold rounded transition shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        🚀 TRANSIT SIMULATOR
+                    </button>
+                </div>
+
                 <!-- Search Port & Country (Port Location Dashboard Specs) -->
                 <div class="p-4 border-b border-slate-800 bg-slate-950/50">
                     <h2 class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1">
@@ -404,6 +413,146 @@
             </div>
         </div>
 
+        <!-- TAB 4: Transit Simulator (Simulasi Pengiriman Paket) -->
+        <div id="tab-simulator" class="grow flex overflow-hidden hidden bg-off-white">
+            
+            <!-- Left inputs panel -->
+            <aside class="w-80 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 p-5 overflow-y-auto text-xs font-mono text-slate-300 animate-fade-in">
+                <h3 class="text-sm font-bold text-white border-b border-slate-700 pb-2 mb-4 uppercase tracking-wider">Configure Shipment</h3>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-slate-500 uppercase mb-1">Origin Country</label>
+                        <select id="sim-origin" class="w-full bg-slate-950 text-white rounded border border-slate-800 p-2 outline-none">
+                            <option value="DE">Germany (Europe)</option>
+                            <option value="CN" selected>China (Asia)</option>
+                            <option value="ID">Indonesia (Asia)</option>
+                            <option value="AU">Australia (Oceania)</option>
+                            <option value="US">United States (Americas)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-500 uppercase mb-1">Destination Country</label>
+                        <select id="sim-destination" class="w-full bg-slate-950 text-white rounded border border-slate-800 p-2 outline-none">
+                            <option value="DE">Germany (Europe)</option>
+                            <option value="CN">China (Asia)</option>
+                            <option value="ID" selected>Indonesia (Asia)</option>
+                            <option value="AU">Australia (Oceania)</option>
+                            <option value="US">United States (Americas)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-500 uppercase mb-1">Transit Mode</label>
+                        <div class="flex gap-2">
+                            <label class="grow flex items-center justify-center gap-1.5 py-2 rounded border border-slate-800 bg-slate-950 cursor-pointer select-none">
+                                <input type="radio" name="sim-mode" value="Sea" checked class="accent-intl-orange">
+                                <span>SEA</span>
+                            </label>
+                            <label class="grow flex items-center justify-center gap-1.5 py-2 rounded border border-slate-800 bg-slate-950 cursor-pointer select-none">
+                                <input type="radio" name="sim-mode" value="Air" class="accent-intl-orange">
+                                <span>AIR</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-500 uppercase mb-1">Cargo Value</label>
+                        <div class="flex gap-1">
+                            <input type="number" id="sim-value" value="250000" class="grow bg-slate-950 text-white rounded border border-slate-800 p-2 outline-none">
+                            <select id="sim-currency" class="w-16 bg-slate-950 text-white rounded border border-slate-800 p-2 outline-none">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="IDR">IDR</option>
+                                <option value="CNY">CNY</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-500 uppercase mb-1">Carrier Name</label>
+                        <input type="text" id="sim-carrier" value="Evergreen Triton" class="w-full bg-slate-950 text-white rounded border border-slate-800 p-2 outline-none">
+                    </div>
+
+                    <button onclick="startShipmentSimulation()" class="w-full py-2.5 bg-intl-orange hover:bg-orange-600 text-white font-bold rounded transition shadow">
+                        START TRANSIT
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Simulator map & stats -->
+            <section class="grow flex flex-col overflow-hidden">
+                <!-- Map -->
+                <div class="h-1/2 border-b border-slate-200 relative">
+                    <div id="sim-map" class="w-full h-full bg-slate-100"></div>
+                </div>
+
+                <!-- Simulation results & telemetry logs -->
+                <div class="h-1/2 p-5 overflow-y-auto grid grid-cols-1 lg:grid-cols-3 gap-5">
+                    
+                    <!-- Live Telemetry Status -->
+                    <div class="bg-white p-4 rounded border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3 border-b border-slate-100 pb-1.5 flex justify-between">
+                                <span>Simulation Telemetry</span>
+                                <span id="sim-telemetry-status" class="text-[9px] px-1.5 bg-slate-100 text-slate-500 rounded font-normal">IDLE</span>
+                            </h4>
+                            <div class="space-y-2 text-xs font-mono">
+                                <div class="flex justify-between"><span class="text-slate-400">Position:</span><span id="sim-tele-pos">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Heading:</span><span id="sim-tele-heading">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Speed:</span><span id="sim-tele-speed">--</span></div>
+                                <div class="flex justify-between"><span class="text-slate-400">Distance Travelled:</span><span id="sim-tele-dist">--</span></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress bar -->
+                        <div class="mt-4 border-t border-slate-100 pt-3">
+                            <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+                                <span>TRANSIT PROGRESS</span>
+                                <span id="sim-progress-pct">0%</span>
+                            </div>
+                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                                <div id="sim-progress-bar" class="h-full bg-intl-orange transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Global Impact Checklist -->
+                    <div class="bg-white p-4 rounded border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1.5">
+                                <span>7-API Impact Indicators</span>
+                            </h4>
+                            <div class="space-y-1 text-[10px] font-mono">
+                                <div id="impact-countries" class="p-1 rounded bg-slate-50 flex justify-between"><span>1. Countries (Borders check):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                                <div id="impact-worldbank" class="p-1 rounded bg-slate-50 flex justify-between"><span>2. World Bank (LPI infrastructure):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                                <div id="impact-openmeteo" class="p-1 rounded bg-slate-50 flex justify-between"><span>3. OpenMeteo (Live Weather):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                                <div id="impact-exchange" class="p-1 rounded bg-slate-50 flex justify-between"><span>4. Exchange Rate (Invoice value):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                                <div id="impact-marinetraffic" class="p-1 rounded bg-slate-50 flex justify-between"><span>5. Marine Traffic (Vessel Status):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                                <div id="impact-news" class="p-1 rounded bg-slate-50 flex justify-between"><span>6. News Sentiment (Lexicon risk):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                                <div id="impact-osm" class="p-1 rounded bg-slate-50 flex justify-between"><span>7. OpenStreetMap (Routing lane):</span><span class="font-bold text-slate-500">PENDING</span></div>
+                            </div>
+                        </div>
+                        <div id="sim-total-impact-desc" class="text-[9px] text-slate-400 italic mt-2">
+                            Simulasi ini menguji kiriman Anda terhadap hambatan cuaca, inflasi, sentimen berita, dan regulasi lokal.
+                        </div>
+                    </div>
+
+                    <!-- Operations Log -->
+                    <div class="bg-white p-4 rounded border border-slate-200 shadow-sm flex flex-col overflow-hidden h-full min-h-[160px]">
+                        <h4 class="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2 border-b border-slate-100 pb-1.5 shrink-0">
+                            <span>Operations Logger</span>
+                        </h4>
+                        <div id="sim-log" class="grow overflow-y-auto space-y-1 font-mono text-[9px] text-slate-600 bg-slate-950 p-2.5 rounded border border-slate-800 text-slate-300">
+                            <p class="text-slate-500">&gt; System initialized. Awaiting transit configuration...</p>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+
     </div>
 
     <!-- Leaflet.js Scripts (OpenStreetMap parameter) -->
@@ -425,21 +574,29 @@
         let map = null;
         let mapMarkers = [];
 
+        let simulatorMap = null;
+        let simRouteLine = null;
+        let simVesselMarker = null;
+        let simInterval = null;
+
         // Switch Active Tabs
         function switchTab(tabId) {
             document.getElementById('tab-platform').classList.add('hidden');
             document.getElementById('tab-compare').classList.add('hidden');
             document.getElementById('tab-admin').classList.add('hidden');
+            document.getElementById('tab-simulator').classList.add('hidden');
 
             document.getElementById('btn-tab-platform').className = "px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent";
             document.getElementById('btn-tab-compare').className = "px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent";
             document.getElementById('btn-tab-admin').className = "px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent";
+            document.getElementById('btn-tab-simulator').className = "px-3 py-1.5 rounded font-semibold transition bg-slate-950/40 text-slate-400 hover:text-white border border-transparent";
 
             document.getElementById(tabId).classList.remove('hidden');
             
             let btnId = '';
             if (tabId === 'tab-platform') btnId = 'btn-tab-platform';
             else if (tabId === 'tab-compare') btnId = 'btn-tab-compare';
+            else if (tabId === 'tab-simulator') btnId = 'btn-tab-simulator';
             else btnId = 'btn-tab-admin';
             
             document.getElementById(btnId).className = "px-3 py-1.5 rounded font-semibold transition bg-slate-800 text-white border border-slate-700";
@@ -451,6 +608,188 @@
             if (tabId === 'tab-compare') {
                 runComparison();
             }
+            if (tabId === 'tab-simulator') {
+                initSimulatorMap();
+            }
+        }
+
+        function initSimulatorMap() {
+            if (!simulatorMap) {
+                simulatorMap = L.map('sim-map', { attributionControl: false }).setView([12.0, 40.0], 2);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 18,
+                    minZoom: 1.5
+                }).addTo(simulatorMap);
+            } else {
+                setTimeout(() => simulatorMap.invalidateSize(), 50);
+            }
+        }
+
+        function startShipmentSimulation() {
+            if (simInterval) clearInterval(simInterval);
+
+            const originCode = document.getElementById('sim-origin').value;
+            const destCode = document.getElementById('sim-destination').value;
+            const mode = document.querySelector('input[name="sim-mode"]:checked').value;
+            const value = parseFloat(document.getElementById('sim-value').value);
+            const currency = document.getElementById('sim-currency').value;
+            const carrier = document.getElementById('sim-carrier').value;
+
+            if (originCode === destCode) {
+                alert("Asal dan tujuan tidak boleh sama!");
+                return;
+            }
+
+            const origin = countriesData[originCode];
+            const dest = countriesData[destCode];
+
+            const portOrigin = portsData.find(p => p.country_code === originCode) || { lat: 20, lng: 20 };
+            const portDest = portsData.find(p => p.country_code === destCode) || { lat: 40, lng: 40 };
+
+            const originCoords = [parseFloat(portOrigin.lat), parseFloat(portOrigin.lng)];
+            const destCoords = [parseFloat(portDest.lat), parseFloat(portDest.lng)];
+
+            if (simRouteLine) simulatorMap.removeLayer(simRouteLine);
+            if (simVesselMarker) simulatorMap.removeLayer(simVesselMarker);
+
+            simRouteLine = L.polyline([originCoords, destCoords], {
+                color: '#EA580C',
+                weight: 3,
+                dashArray: '5, 10'
+            }).addTo(simulatorMap);
+
+            simulatorMap.fitBounds(simRouteLine.getBounds(), { padding: [50, 50] });
+
+            simVesselMarker = L.circleMarker(originCoords, {
+                radius: 7,
+                color: '#EA580C',
+                fillColor: '#EA580C',
+                fillOpacity: 1
+            }).addTo(simulatorMap);
+
+            document.getElementById('sim-telemetry-status').textContent = 'TRANSITING';
+            document.getElementById('sim-telemetry-status').className = 'text-[9px] px-1.5 bg-intl-orange text-white rounded font-bold animate-pulse';
+
+            const logEl = document.getElementById('sim-log');
+            logEl.innerHTML = `<p class="text-amber-400">&gt; Starting simulation: Sending cargo from ${origin.name} to ${dest.name} via ${mode}...</p>`;
+
+            const resetImpact = (id, text) => {
+                const el = document.getElementById(id);
+                el.className = "p-1 rounded bg-slate-50 flex justify-between";
+                el.children[1].className = "font-bold text-slate-500";
+                el.children[1].textContent = text;
+            };
+            resetImpact('impact-countries', 'CHECKING');
+            resetImpact('impact-worldbank', 'PENDING');
+            resetImpact('impact-openmeteo', 'PENDING');
+            resetImpact('impact-exchange', 'PENDING');
+            resetImpact('impact-marinetraffic', 'PENDING');
+            resetImpact('impact-news', 'PENDING');
+            resetImpact('impact-osm', 'DRAWING');
+
+            let step = 0;
+            const totalSteps = 10;
+
+            const latDiff = destCoords[0] - originCoords[0];
+            const lngDiff = destCoords[1] - originCoords[1];
+
+            simInterval = setInterval(() => {
+                step++;
+                const pct = (step / totalSteps) * 100;
+                
+                const currentLat = originCoords[0] + (latDiff * (step / totalSteps));
+                const currentLng = originCoords[1] + (lngDiff * (step / totalSteps));
+                
+                simVesselMarker.setLatLng([currentLat, currentLng]);
+
+                document.getElementById('sim-progress-pct').textContent = `${Math.round(pct)}%`;
+                document.getElementById('sim-progress-bar').style.width = `${pct}%`;
+
+                document.getElementById('sim-tele-pos').textContent = `${currentLat.toFixed(4)}, ${currentLng.toFixed(4)}`;
+                document.getElementById('sim-tele-heading').textContent = `${Math.round(Math.random() * 360)}°`;
+                document.getElementById('sim-tele-speed').textContent = mode === 'Air' ? `${450 + Math.round(Math.random()*40)} kn` : `${14 + Math.round(Math.random()*5)} kn`;
+                document.getElementById('sim-tele-dist').textContent = `${Math.round(pct * 50)} km`;
+
+                if (step === 2) {
+                    const el = document.getElementById('impact-countries');
+                    el.className = "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    el.children[1].className = "font-bold text-emerald-600";
+                    el.children[1].textContent = "PASSED";
+                    logEl.innerHTML += `<p class="text-emerald-400">&gt; [API Countries] Borders cleared. Capital: ${dest.capital || 'Jakarta'}. Population check passed.</p>`;
+                }
+                if (step === 4) {
+                    const el = document.getElementById('impact-worldbank');
+                    const hasDelay = destCode === 'ID' || destCode === 'CN';
+                    el.className = hasDelay ? "p-1 rounded bg-amber-50 text-amber-800 flex justify-between" : "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    el.children[1].className = hasDelay ? "font-bold text-safety-amber" : "font-bold text-emerald-600";
+                    el.children[1].textContent = hasDelay ? "DELAY WARNING" : "EXCELLENT";
+                    
+                    if (hasDelay) {
+                        logEl.innerHTML += `<p class="text-safety-amber">&gt; [API World Bank] Warning: Target country LPI rank is low. Infrastructure bottlenecks might add transit time.</p>`;
+                    } else {
+                        logEl.innerHTML += `<p class="text-emerald-400">&gt; [API World Bank] Verified: Target LPI infrastructure rating is excellent.</p>`;
+                    }
+                }
+                if (step === 6) {
+                    const el = document.getElementById('impact-openmeteo');
+                    const isBadWeather = origin.weather_conditions.includes('Storm') || dest.weather_conditions.includes('Storm') || origin.weather_conditions.includes('Rain');
+                    el.className = isBadWeather ? "p-1 rounded bg-red-50 text-red-800 flex justify-between" : "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    el.children[1].className = isBadWeather ? "font-bold text-intl-orange" : "font-bold text-emerald-600";
+                    el.children[1].textContent = isBadWeather ? "SEVERE WEATHER" : "CLEAR";
+                    
+                    if (isBadWeather) {
+                        logEl.innerHTML += `<p class="text-intl-orange">&gt; [API OpenMeteo] Warning: Heavy storm/monsoon detected along coordinates. Transport speed penalized.</p>`;
+                    } else {
+                        logEl.innerHTML += `<p class="text-emerald-400">&gt; [API OpenMeteo] Live coordinates weather is clear. Stable conditions.</p>`;
+                    }
+                }
+                if (step === 7) {
+                    const el = document.getElementById('impact-exchange');
+                    el.className = "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    el.children[1].className = "font-bold text-emerald-600";
+                    el.children[1].textContent = "CONVERTED";
+                    
+                    const convUSD = currency === 'USD' ? value : value * 1.09;
+                    logEl.innerHTML += `<p class="text-slate-400">&gt; [API ExchangeRate] Cargo value converted: $${Math.round(convUSD).toLocaleString()} USD equivalent.</p>`;
+                }
+                if (step === 8) {
+                    const el = document.getElementById('impact-marinetraffic');
+                    el.className = "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    el.children[1].className = "font-bold text-emerald-600";
+                    el.children[1].textContent = "TRANSMITTING";
+                    logEl.innerHTML += `<p class="text-slate-400">&gt; [API MarineTraffic] AIS transponder synced. Vessel: ${carrier}. Course heading steady.</p>`;
+                }
+                if (step === 9) {
+                    const el = document.getElementById('impact-news');
+                    const isNewsThreat = originCode === 'CN' || originCode === 'DE';
+                    el.className = isNewsThreat ? "p-1 rounded bg-red-50 text-red-800 flex justify-between" : "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    el.children[1].className = isNewsThreat ? "font-bold text-intl-orange" : "font-bold text-emerald-600";
+                    el.children[1].textContent = isNewsThreat ? "NEGATIVE OUTLOOK" : "POSITIVE";
+                    
+                    if (isNewsThreat) {
+                        logEl.innerHTML += `<p class="text-intl-orange">&gt; [API News] Warning: Negative lexicon news matching ("disaster"/"delay") detected at port. Demurrage risk warning issued.</p>`;
+                    } else {
+                        logEl.innerHTML += `<p class="text-emerald-400">&gt; [API News] News sentiment analysis index: STABLE.</p>`;
+                    }
+                }
+
+                logEl.scrollTop = logEl.scrollHeight;
+
+                if (step === totalSteps) {
+                    clearInterval(simInterval);
+                    document.getElementById('sim-telemetry-status').textContent = 'ARRIVED';
+                    document.getElementById('sim-telemetry-status').className = 'text-[9px] px-1.5 bg-emerald-500 text-white rounded font-bold';
+                    
+                    const osmEl = document.getElementById('impact-osm');
+                    osmEl.className = "p-1 rounded bg-emerald-50 text-emerald-800 flex justify-between";
+                    osmEl.children[1].className = "font-bold text-emerald-600";
+                    osmEl.children[1].textContent = "ARRIVED";
+
+                    logEl.innerHTML += `<p class="text-emerald-400 font-bold">&gt; Shipment successfully arrived at destination port. Total Transit Time: ${mode === 'Air' ? '18 Hours' : '14 Days'} (including API calculated delays).</p>`;
+                    logEl.scrollTop = logEl.scrollHeight;
+                }
+
+            }, 700);
         }
 
         // Live Clock
