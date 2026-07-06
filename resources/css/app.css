@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap');
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -6,6 +7,83 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-mono: 'Roboto Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    
+    --color-brand-slate: #1E293B;
+    --color-brand-navy: #0F172A;
+    --color-brand-orange: #EA580C;
+    --color-brand-amber: #FBBF24;
+    --color-brand-white: #F8FAFC;
+    
+    --animate-dash: dash 20s linear infinite;
+    --animate-ping-slow: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
+
+@keyframes dash {
+    to {
+        stroke-dashoffset: -40px;
+    }
+}
+
+/* Custom Scrollbar for industrial tech clean look */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0F172A;
+}
+::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #ea580c;
+}
+
+/* Leaflet Map Dark/Monochrome Styling Overrides */
+.leaflet-container {
+    background: #0f172a !important;
+}
+
+.leaflet-bar {
+    border: 1px solid #334155 !important;
+    box-shadow: none !important;
+}
+
+.leaflet-bar a {
+    background-color: #1e293b !important;
+    color: #f8fafc !important;
+    border-bottom: 1px solid #334155 !important;
+}
+
+.leaflet-bar a:hover {
+    background-color: #334155 !important;
+    color: #ea580c !important;
+}
+
+.leaflet-popup-content-wrapper {
+    background: #1e293b !important;
+    color: #f8fafc !important;
+    border: 1px solid #334155;
+    border-radius: 6px !important;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1) !important;
+}
+
+.leaflet-popup-tip {
+    background: #1e293b !important;
+    border: 1px solid #334155;
+}
+
+/* Custom flow path animation styling */
+.flow-path {
+    stroke-dasharray: 8, 8;
+    animation: dash 15s linear infinite;
+}
+
+.flow-path-fast {
+    stroke-dasharray: 6, 6;
+    animation: dash 8s linear infinite;
+}
+
